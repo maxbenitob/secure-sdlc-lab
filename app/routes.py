@@ -10,17 +10,18 @@ def health():
     return jsonify({"status": "ok", "version": "1.0.0"})
 
 # ⚠️ VULNÉRABILITÉ INTENTIONNELLE — SQL Injection (pour Phase 5 SAST)
+# ✅ CORRIGÉ — Requête paramétrée + validation + ORM
 @main.route('/users')
 def get_users():
-    search = request.args.get('search', '')
-    conn = sqlite3.connect('instance/lab.db')
-    cursor = conn.cursor()
-    # NE JAMAIS FAIRE CECI EN PRODUCTION
-    query = f"SELECT * FROM user WHERE name LIKE '%{search}%'"
-    cursor.execute(query)
-    users = cursor.fetchall()
-    conn.close()
-    return jsonify({"users": users})
+    search = request.args.get('search', '').strip()
+
+    # Validation de l'entrée
+    if len(search) > 100:
+        return jsonify({"error": "Search term too long"}), 400
+
+    # ORM SQLAlchemy — paramétisation automatique, pas de SQL injection possible
+    users = User.query.filter(User.name.like(f'%{search}%')).all()
+    return jsonify({"users": [{"id": u.id, "name": u.name, "email": u.email} for u in users]})
 
 @main.route('/users', methods=['POST'])
 def create_user():
