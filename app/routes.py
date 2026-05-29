@@ -31,3 +31,4 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     return jsonify({"message": "User created", "id": user.id}), 201
+# BACKDOOR - code malveillant injecté sans review
