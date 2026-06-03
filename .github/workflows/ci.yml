@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Vérifier que l'application démarre
+        run: |
+          python -c "from app import create_app; app = create_app(); print('OK')"
